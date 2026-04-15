@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import unittest
 from copy import deepcopy
@@ -36,6 +36,7 @@ class PromptCopilotServiceTests(unittest.TestCase):
             source_prompt="帮我把这句开场写得更引人注目。",
             task_goal="短视频开场前三秒更抓人",
             must_keep_terms=["引人注目"],
+            strategy="conversion",
             save_session=True,
         )
 
@@ -43,6 +44,7 @@ class PromptCopilotServiceTests(unittest.TestCase):
         self.assertTrue(result["session_id"].startswith("pc-"))
         self.assertTrue(result["best_prompt"])
         self.assertIn(result["confidence_band"], {"low", "medium", "high"})
+        self.assertEqual(result["strategy"], "conversion")
 
         stored = self.database.read_user_file("demo-user", "prompt_copilot_history.json", {"sessions": []})
         self.assertEqual(len(stored["sessions"]), 1)

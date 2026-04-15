@@ -1,7 +1,8 @@
-"""FastAPI app for the standalone Chinese Prompt Optimizer."""
+﻿"""FastAPI app for the standalone Chinese Prompt Optimizer."""
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from typing import Any
 
@@ -31,6 +32,7 @@ class OptimizeRequest(BaseModel):
     style_hint: str | None = None
     must_keep_terms: list[str] = Field(default_factory=list)
     save_session: bool = True
+    strategy: str = "balanced"
 
 
 class FeedbackRequest(BaseModel):
@@ -45,7 +47,7 @@ class FeedbackRequest(BaseModel):
 app = FastAPI(
     title="Chinese Prompt Optimizer",
     description="Standalone Chinese prompt understanding and optimization tool.",
-    version="0.1.0",
+    version="0.2.0",
 )
 
 app.add_middleware(
@@ -79,19 +81,11 @@ async def latest_report() -> ApiEnvelope:
     reports_dir = Path(__file__).resolve().parent.parent / "prompt-copilot" / "reports"
     report_files = sorted(reports_dir.glob("*.json"), key=lambda item: item.stat().st_mtime, reverse=True)
     if not report_files:
-        return ApiEnvelope(status="success", data={"report": None})
+        return ApiEnvelope(status="success", data={"report": None, "report_name": None})
 
-    import json
-
-    with report_files[0].open("r", encoding="utf-8") as handle:
+    with report_files[0].open("r", encoding="utf-8-sig") as handle:
         payload = json.load(handle)
-    return ApiEnvelope(
-        status="success",
-        data={
-            "report": payload,
-            "report_name": report_files[0].name,
-        },
-    )
+    return ApiEnvelope(status="success", data={"report": payload, "report_name": report_files[0].name})
 
 
 @app.get("/", include_in_schema=False)
@@ -109,12 +103,9 @@ async def optimize(payload: OptimizeRequest) -> ApiEnvelope:
         style_hint=payload.style_hint,
         must_keep_terms=payload.must_keep_terms,
         save_session=payload.save_session,
+        strategy=payload.strategy,
     )
-    return ApiEnvelope(
-        status="success" if result["status"] == "success" else "error",
-        message=result.get("message", ""),
-        data=result,
-    )
+    return ApiEnvelope(status="success" if result["status"] == "success" else "error", message=result.get("message", ""), data=result)
 
 
 @app.get("/api/prompt-copilot/history", response_model=ApiEnvelope)
@@ -151,3 +142,4 @@ if __name__ == "__main__":
     import uvicorn
 
     uvicorn.run("backend.main:app", host=HOST, port=PORT, reload=False, log_level="info")
+

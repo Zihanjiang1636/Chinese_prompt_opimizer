@@ -1,4 +1,4 @@
-"""Shared utility helpers."""
+﻿"""Shared utility helpers."""
 
 from __future__ import annotations
 
@@ -20,7 +20,7 @@ def ensure_text(value: str | None) -> str:
 def load_json(path: Path, default: Any) -> Any:
     if not path.exists():
         return default
-    with path.open("r", encoding="utf-8") as handle:
+    with path.open("r", encoding="utf-8-sig") as handle:
         return json.load(handle)
 
 

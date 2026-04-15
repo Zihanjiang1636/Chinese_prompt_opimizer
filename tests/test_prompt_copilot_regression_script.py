@@ -1,10 +1,10 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import unittest
 from pathlib import Path
 
-from scripts.run_prompt_copilot_regression import run_cases
 from backend.services.prompt_copilot_service import PromptCopilotService
+from scripts.run_prompt_copilot_regression import run_cases
 
 
 class LLMStub:
@@ -45,10 +45,11 @@ class PromptCopilotRegressionScriptTests(unittest.TestCase):
             },
         ]
 
-        report = run_cases(service, cases, "regression-runner")
+        report = run_cases(service, cases, "regression-runner", strategy="literary")
 
         self.assertEqual(report["summary"]["case_count"], 2)
         self.assertEqual(len(report["records"]), 2)
+        self.assertEqual(report["summary"]["strategy"], "literary")
         self.assertIn("avg_winner_total", report["summary"])
         self.assertIn("winner_margin_vs_direct", report["records"][0])
 

@@ -1,36 +1,16 @@
-# Regression Guide
+﻿# 回归说明
 
-## 目标
+`real-world-prompt-regression.json` 用来模拟更接近真实中文创作场景的 Prompt 输入。
 
-用固定的中文真实样本持续观察 Prompt Copilot 是否真的比：
+建议调优流程：
 
-- 原提示词基线
-- 单轮直接改写基线
+1. 先用 `--stub` 模式检查流程和报告结构
+2. 再切到 live 模式比较真实模型表现
+3. 每次模板或策略调整后都跑同一批样本，观察是否稳定跑赢两个基线
 
-更稳定、更像产品级优化器。
+常用命令：
 
-## 当前回归包
-
-- `real-world-prompt-regression.json`
-- 共 18 条真实风格样本
-- 覆盖场景：
-  - 短视频开场
-  - 种草文案
-  - 广告口播
-  - 标题优化
-  - 卖点提炼
-  - 情绪共鸣
-
-## 观察重点
-
-- `avg_winner_total` 是否稳定高于两个基线
-- `both_baselines_beaten_ratio` 是否持续上升
-- 某一类场景是否明显掉分
-- 胜出标签是否长期被单一类型垄断
-
-## 建议节奏
-
-- 每次改分析提示、候选生成提示或评分提示后跑一轮
-- 如果只改某个场景的模板，先用 `--limit` 做快速抽样，再全量跑
-- 遇到失败样本时，把失败原因写回 `notes/`，别只改代码不留痕迹
-- 开发阶段优先用 `--stub` 验证流程和报告结构，准备做真实效果判断时再跑 live 模式
+```powershell
+python scripts/run_prompt_copilot_regression.py --stub --limit 5
+python scripts/run_prompt_copilot_regression.py --strategy conversion
+```

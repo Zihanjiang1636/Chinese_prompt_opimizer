@@ -1,4 +1,4 @@
-:root {
+﻿:root {
   --canvas: #f6f1e8;
   --surface: rgba(255, 255, 255, 0.92);
   --surface-strong: #ffffff;
@@ -79,11 +79,7 @@ body {
   line-height: 1.9;
 }
 
-.workspace {
-  display: grid;
-  gap: 24px;
-}
-
+.workspace,
 .dashboard-grid {
   display: grid;
   gap: 24px;
@@ -110,12 +106,14 @@ label span {
 
 input,
 textarea,
+select,
 button {
   font: inherit;
 }
 
 input,
-textarea {
+textarea,
+select {
   width: 100%;
   border: 1px solid var(--border);
   border-radius: 18px;
@@ -205,12 +203,7 @@ button:hover {
 
 .score-grid,
 .explanation-list,
-.history-list {
-  display: grid;
-  gap: 12px;
-  margin-top: 18px;
-}
-
+.history-list,
 .runtime-strip {
   display: grid;
   gap: 12px;
@@ -246,10 +239,13 @@ button:hover {
   background: rgba(255, 255, 255, 0.78);
 }
 
-.history-item small {
-  display: block;
-  margin-top: 8px;
+.history-item small,
+.history-item code {
   color: var(--muted);
+}
+
+.history-item code {
+  font-size: 12px;
 }
 
 .details-panel {
@@ -272,7 +268,7 @@ button:hover {
   }
 
   .dashboard-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .field-grid {
@@ -281,6 +277,6 @@ button:hover {
 
   .score-grid,
   .runtime-strip {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }

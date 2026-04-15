@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="zh-CN">
   <head>
     <meta charset="utf-8" />
@@ -12,8 +12,7 @@
         <p class="eyebrow">Chinese Prompt Optimizer</p>
         <h1>先理解中文提示词，再把更稳的版本交给你。</h1>
         <p class="hero-copy">
-          这个工具不只是润色一句话，而是先做中文语义拆解，再进行多路改写、基线比较和内部回放筛选，
-          最后只保留真正跑赢原句和单轮直改的那一版。
+          这个工具不只是润色一句话，而是先做中文语义拆解，再进行多路改写、基线比较和内部回放筛选，最后只保留真正跑赢原句和单轮直改的那一版。
         </p>
         <div id="runtimeConfig" class="runtime-strip"></div>
       </section>
@@ -31,7 +30,7 @@
           </label>
           <div class="field-grid">
             <label>
-              <span>平台/场景</span>
+              <span>平台 / 场景</span>
               <input id="platformTag" value="短视频" />
             </label>
             <label>
@@ -39,10 +38,16 @@
               <input id="styleHint" value="有文采但别虚" />
             </label>
           </div>
-          <label>
-            <span>保留关键词</span>
-            <input id="mustKeepTerms" value="引人注目, 第一眼" />
-          </label>
+          <div class="field-grid">
+            <label>
+              <span>优化策略</span>
+              <select id="strategySelect"></select>
+            </label>
+            <label>
+              <span>保留关键词</span>
+              <input id="mustKeepTerms" value="引人注目, 第一眼" />
+            </label>
+          </div>
           <label class="checkbox-row">
             <input id="saveSession" type="checkbox" checked />
             <span>保存本次结果到本地历史</span>
@@ -62,7 +67,7 @@
             </div>
             <button id="copyButton" class="secondary" type="button">复制</button>
           </div>
-          <pre id="bestPrompt" class="best-prompt">先点击“开始优化”，系统会把胜出的版本展示在这里。</pre>
+          <pre id="bestPrompt" class="best-prompt">点击“开始优化”后，系统会把胜出的版本展示在这里。</pre>
           <div id="scoreSummary" class="score-grid"></div>
           <div id="briefExplanation" class="explanation-list"></div>
           <details class="details-panel">
@@ -92,12 +97,23 @@
           <div class="history-head">
             <div>
               <p class="badge">回归概览</p>
-              <h2>像开源评测工具那样看整体趋势</h2>
+              <h2>像评测工具一样看整体趋势</h2>
             </div>
             <button id="refreshReportButton" class="ghost" type="button">刷新</button>
           </div>
           <p id="reportMeta" class="subtle-copy">如果还没跑回归，这里会显示为空。</p>
           <div id="reportSummary" class="score-grid"></div>
+        </section>
+
+        <section class="panel preset-panel">
+          <div class="history-head">
+            <div>
+              <p class="badge">接入预设</p>
+              <h2>借鉴开源工具的模型接入思路</h2>
+            </div>
+          </div>
+          <p class="subtle-copy">下面是常见的 OpenAI-compatible / 本地模型接入预设，便于你快速切换调试环境。</p>
+          <div id="providerPresetList" class="history-list"></div>
         </section>
       </section>
     </main>

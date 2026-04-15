@@ -1,4 +1,4 @@
-"""Minimal LLM wrapper with deterministic fallback mode."""
+﻿"""Minimal LLM wrapper with deterministic fallback mode."""
 
 from __future__ import annotations
 
@@ -17,6 +17,11 @@ class LLMService:
         "dashscope",
         "qwen",
         "deepseek",
+        "ollama",
+        "lmstudio",
+        "lm-studio",
+        "openrouter",
+        "siliconflow",
     }
 
     def __init__(self) -> None:
@@ -29,14 +34,7 @@ class LLMService:
     def stub_mode(self) -> bool:
         return not bool(self.api_key)
 
-    def generate_text(
-        self,
-        system_prompt: str,
-        user_prompt: str,
-        fallback_text: str,
-        *,
-        timeout_seconds: int | float | None = None,
-    ) -> dict[str, Any]:
+    def generate_text(self, system_prompt: str, user_prompt: str, fallback_text: str, *, timeout_seconds: int | float | None = None) -> dict[str, Any]:
         timeout_value = float(timeout_seconds or self.DEFAULT_TIMEOUT_SECONDS)
         started_at = perf_counter()
 
@@ -61,25 +59,9 @@ class LLMService:
         except Exception as exc:  # pragma: no cover
             return self._build_payload("fallback", fallback_text, timeout_value, started_at, True, error=str(exc))
 
-        return self._build_payload(
-            "fallback",
-            fallback_text,
-            timeout_value,
-            started_at,
-            True,
-            error=f"Unsupported provider: {self.provider}",
-        )
+        return self._build_payload("fallback", fallback_text, timeout_value, started_at, True, error=f"Unsupported provider: {self.provider}")
 
-    def _build_payload(
-        self,
-        mode: str,
-        text: str,
-        timeout_seconds: float,
-        started_at: float,
-        fallback_used: bool,
-        *,
-        error: str | None = None,
-    ) -> dict[str, Any]:
+    def _build_payload(self, mode: str, text: str, timeout_seconds: float, started_at: float, fallback_used: bool, *, error: str | None = None) -> dict[str, Any]:
         elapsed_ms = int((perf_counter() - started_at) * 1000)
         return {
             "mode": mode,

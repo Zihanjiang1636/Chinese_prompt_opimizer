@@ -1,5 +1,6 @@
-const defaultUserId = "local-user";
+﻿const defaultUserId = "local-user";
 let activeSessionId = null;
+let runtimeConfig = null;
 
 const sourcePromptInput = document.getElementById("sourcePrompt");
 const taskGoalInput = document.getElementById("taskGoal");
@@ -7,6 +8,7 @@ const platformTagInput = document.getElementById("platformTag");
 const styleHintInput = document.getElementById("styleHint");
 const mustKeepTermsInput = document.getElementById("mustKeepTerms");
 const saveSessionInput = document.getElementById("saveSession");
+const strategySelect = document.getElementById("strategySelect");
 const noticeNode = document.getElementById("notice");
 const bestPromptNode = document.getElementById("bestPrompt");
 const scoreSummaryNode = document.getElementById("scoreSummary");
@@ -16,6 +18,7 @@ const historyListNode = document.getElementById("historyList");
 const runtimeConfigNode = document.getElementById("runtimeConfig");
 const reportMetaNode = document.getElementById("reportMeta");
 const reportSummaryNode = document.getElementById("reportSummary");
+const providerPresetListNode = document.getElementById("providerPresetList");
 
 function setNotice(text) {
   noticeNode.textContent = text || "";
@@ -23,7 +26,7 @@ function setNotice(text) {
 
 function splitTerms(value) {
   return value
-    .split(/[，,\n]/)
+    .split(/[,，\n]/)
     .map((item) => item.trim())
     .filter(Boolean);
 }
@@ -41,13 +44,35 @@ function renderCards(target, items) {
     .join("");
 }
 
+function renderStrategyOptions(config) {
+  const strategies = config.strategies || [];
+  strategySelect.innerHTML = strategies
+    .map(
+      (item) => `<option value="${item.id}" ${item.id === (config.default_strategy || "balanced") ? "selected" : ""}>${item.label}</option>`,
+    )
+    .join("");
+}
+
 function renderRuntimeConfig(config) {
+  runtimeConfig = config;
   renderCards(runtimeConfigNode, [
     { label: "模板版本", value: config.template_version || "unknown" },
     { label: "LLM 模式", value: config.llm_mode || "unknown" },
-    { label: "模型", value: config.llm_model || "unknown" },
-    { label: "评测集", value: String(config.dataset_case_count || 0) },
+    { label: "当前模型", value: config.llm_model || "unknown" },
+    { label: "评测样本", value: String(config.dataset_case_count || 0) },
   ]);
+  renderStrategyOptions(config);
+  providerPresetListNode.innerHTML = (config.provider_presets || [])
+    .map(
+      (item) => `
+        <div class="history-item">
+          <strong>${item.label}</strong>
+          <div><code>${item.provider}</code> · <code>${item.base_url}</code></div>
+          <small>${item.note}</small>
+        </div>
+      `,
+    )
+    .join("");
 }
 
 function renderResult(result) {
@@ -57,6 +82,7 @@ function renderResult(result) {
     { label: "胜出总分", value: summary.winner_total ?? "-" },
     { label: "原始基线", value: summary.original_baseline_total ?? "-" },
     { label: "直改基线", value: summary.direct_baseline_total ?? "-" },
+    { label: "策略", value: result.strategy_label || result.strategy || "-" },
   ]);
 
   briefExplanationNode.innerHTML = (result.brief_explanation || [])
@@ -92,7 +118,7 @@ function renderHistory(sessions) {
         <button class="history-item" data-session-id="${item.session_id}">
           <strong>${item.task_goal}</strong>
           <div>${item.source_prompt}</div>
-          <small>${item.confidence_band} · 胜出分 ${item.score_summary?.winner_total ?? "-"}</small>
+          <small>${item.strategy_label || item.strategy} · ${item.confidence_band} · 胜出分 ${item.score_summary?.winner_total ?? "-"}</small>
         </button>
       `,
     )
@@ -119,12 +145,14 @@ function renderReport(report, reportName) {
   }
 
   const summary = report.summary || {};
-  reportMetaNode.textContent = `最新报告：${reportName || "unknown"} · 样本数 ${summary.case_count || 0}`;
+  reportMetaNode.textContent = `最新报告：${reportName || "unknown"} · 策略 ${summary.strategy || "balanced"} · 样本数 ${summary.case_count || 0}`;
   renderCards(reportSummaryNode, [
     { label: "平均胜出分", value: summary.avg_winner_total ?? "-" },
     { label: "平均原始基线", value: summary.avg_original_baseline_total ?? "-" },
     { label: "平均直改基线", value: summary.avg_direct_baseline_total ?? "-" },
-    { label: "双基线全胜比", value: summary.both_baselines_beaten_ratio ?? "-" },
+    { label: "双基线胜率", value: summary.both_baselines_beaten_ratio ?? "-" },
+    { label: "相对原句提升", value: summary.avg_margin_vs_original ?? "-" },
+    { label: "相对直改提升", value: summary.avg_margin_vs_direct ?? "-" },
   ]);
 }
 
@@ -147,7 +175,7 @@ async function refreshReport() {
 }
 
 document.getElementById("optimizeButton").addEventListener("click", async () => {
-  setNotice("正在解析、改写并进行内部筛选……");
+  setNotice("正在解析、改写并进行内部筛选…");
   const response = await fetch("/api/prompt-copilot/optimize", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -159,6 +187,7 @@ document.getElementById("optimizeButton").addEventListener("click", async () => 
       style_hint: styleHintInput.value,
       must_keep_terms: splitTerms(mustKeepTermsInput.value),
       save_session: saveSessionInput.checked,
+      strategy: strategySelect.value || (runtimeConfig?.default_strategy ?? "balanced"),
     }),
   });
 
@@ -216,6 +245,7 @@ document.getElementById("exampleButton").addEventListener("click", () => {
   platformTagInput.value = "短视频";
   styleHintInput.value = "有文采但别虚";
   mustKeepTermsInput.value = "引人注目, 第一眼";
+  strategySelect.value = runtimeConfig?.default_strategy ?? "balanced";
 });
 
 Promise.all([refreshHistory(), refreshRuntimeConfig(), refreshReport()]).catch(() => {

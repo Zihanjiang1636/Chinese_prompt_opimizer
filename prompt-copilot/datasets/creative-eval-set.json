@@ -1,46 +1,42 @@
-{
+﻿{
+  "version": "v1",
+  "description": "Fixed Chinese creative evaluation pack for Prompt Copilot.",
   "cases": [
     {
-      "id": "hook-short-video",
+      "id": "hook-eval-001",
       "scenario": "hook",
-      "task_goal": "短视频开场前三秒吸引注意",
-      "preferred_dimensions": ["clarity", "imagery", "executability"],
-      "anti_patterns": ["空泛口号", "没有第一眼抓力"]
+      "reference_task": "短视频开场前三秒抓人",
+      "preferred_dimensions": ["clarity", "imagery", "executability"]
     },
     {
-      "id": "seeding-copy",
+      "id": "seeding-eval-001",
       "scenario": "seeding",
-      "task_goal": "种草文案增强真实感和想象空间",
-      "preferred_dimensions": ["naturalness", "imagery", "literary_gain"],
-      "anti_patterns": ["过度营销", "像硬广"]
+      "reference_task": "种草文案更真实、更有代入感",
+      "preferred_dimensions": ["naturalness", "literary_gain", "imagery"]
     },
     {
-      "id": "ad-voiceover",
+      "id": "ad-eval-001",
       "scenario": "ad_copy",
-      "task_goal": "广告口播兼顾传播性和信息密度",
-      "preferred_dimensions": ["task_completion", "clarity", "executability"],
-      "anti_patterns": ["只有修辞没有信息", "节奏拖沓"]
+      "reference_task": "广告口播更顺、更完整",
+      "preferred_dimensions": ["task_completion", "clarity", "executability"]
     },
     {
-      "id": "headline-boost",
+      "id": "headline-eval-001",
       "scenario": "headline",
-      "task_goal": "标题优化兼顾抓人和不失真",
-      "preferred_dimensions": ["clarity", "imagery", "ambiguity_control"],
-      "anti_patterns": ["标题党", "信息失真"]
+      "reference_task": "标题更抓人但不过度夸张",
+      "preferred_dimensions": ["clarity", "ambiguity_control", "imagery"]
     },
     {
-      "id": "value-prop",
+      "id": "value-eval-001",
       "scenario": "value_prop",
-      "task_goal": "卖点提炼更具体、更能被记住",
-      "preferred_dimensions": ["task_completion", "clarity", "naturalness"],
-      "anti_patterns": ["抽象价值词堆砌", "卖点不落地"]
+      "reference_task": "卖点表达更具体、更易懂",
+      "preferred_dimensions": ["task_completion", "clarity", "executability"]
     },
     {
-      "id": "emotion-lift",
+      "id": "emotion-eval-001",
       "scenario": "emotion",
-      "task_goal": "情绪化表达增强共鸣但不过度煽情",
-      "preferred_dimensions": ["literary_gain", "imagery", "ambiguity_control"],
-      "anti_patterns": ["廉价煽情", "情绪过满"]
+      "reference_task": "情绪文案更有共鸣与余味",
+      "preferred_dimensions": ["literary_gain", "imagery", "naturalness"]
     }
   ]
 }

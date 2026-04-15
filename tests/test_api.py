@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import unittest
 
@@ -26,6 +26,8 @@ class ApiTests(unittest.TestCase):
         payload = response.json()["data"]
         self.assertIn("template_version", payload)
         self.assertIn("llm_mode", payload)
+        self.assertTrue(payload["strategies"])
+        self.assertTrue(payload["provider_presets"])
 
     def test_optimize_history_feedback_flow(self) -> None:
         optimize = client.post(
@@ -38,12 +40,14 @@ class ApiTests(unittest.TestCase):
                 "style_hint": "有文采但别虚",
                 "must_keep_terms": ["引人注目"],
                 "save_session": True,
+                "strategy": "literary",
             },
         )
 
         self.assertEqual(optimize.status_code, 200)
         payload = optimize.json()["data"]
         session_id = payload["session_id"]
+        self.assertEqual(payload["strategy"], "literary")
 
         history = client.get("/api/prompt-copilot/history", params={"user_id": "api-user"})
         self.assertEqual(history.status_code, 200)
