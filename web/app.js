@@ -13,6 +13,9 @@ const scoreSummaryNode = document.getElementById("scoreSummary");
 const briefExplanationNode = document.getElementById("briefExplanation");
 const analysisSummaryNode = document.getElementById("analysisSummary");
 const historyListNode = document.getElementById("historyList");
+const runtimeConfigNode = document.getElementById("runtimeConfig");
+const reportMetaNode = document.getElementById("reportMeta");
+const reportSummaryNode = document.getElementById("reportSummary");
 
 function setNotice(text) {
   noticeNode.textContent = text || "";
@@ -25,23 +28,36 @@ function splitTerms(value) {
     .filter(Boolean);
 }
 
-function renderResult(result) {
-  bestPromptNode.textContent = result.best_prompt || "暂无结果";
-  const summary = result.score_summary || {};
-  scoreSummaryNode.innerHTML = [
-    { label: "胜出总分", value: summary.winner_total },
-    { label: "原始基线", value: summary.original_baseline_total },
-    { label: "直改基线", value: summary.direct_baseline_total },
-  ]
+function renderCards(target, items) {
+  target.innerHTML = items
     .map(
       (item) => `
         <div class="score-card">
           <span>${item.label}</span>
-          <span class="value">${item.value ?? "-"}</span>
+          <span class="value">${item.value}</span>
         </div>
       `,
     )
     .join("");
+}
+
+function renderRuntimeConfig(config) {
+  renderCards(runtimeConfigNode, [
+    { label: "模板版本", value: config.template_version || "unknown" },
+    { label: "LLM 模式", value: config.llm_mode || "unknown" },
+    { label: "模型", value: config.llm_model || "unknown" },
+    { label: "评测集", value: String(config.dataset_case_count || 0) },
+  ]);
+}
+
+function renderResult(result) {
+  bestPromptNode.textContent = result.best_prompt || "暂无结果";
+  const summary = result.score_summary || {};
+  renderCards(scoreSummaryNode, [
+    { label: "胜出总分", value: summary.winner_total ?? "-" },
+    { label: "原始基线", value: summary.original_baseline_total ?? "-" },
+    { label: "直改基线", value: summary.direct_baseline_total ?? "-" },
+  ]);
 
   briefExplanationNode.innerHTML = (result.brief_explanation || [])
     .map((item) => `<div class="explanation-item">${item}</div>`)
@@ -51,8 +67,10 @@ function renderResult(result) {
   const strengths = (analysis.strengths || []).map((item) => `<li>${item}</li>`).join("");
   const risks = (analysis.risks || []).map((item) => `<li>${item}</li>`).join("");
   const culturalSignals = (analysis.cultural_signals || []).map((item) => `<li>${item}</li>`).join("");
+
   analysisSummaryNode.innerHTML = `
-    <p>${result.analysis_summary || ""}</p>
+    <p><strong>摘要：</strong>${result.analysis_summary || ""}</p>
+    <p><strong>模板版本：</strong>${result.template_version || "unknown"}</p>
     <h3>优势</h3>
     <ul>${strengths || "<li>暂无</li>"}</ul>
     <h3>风险</h3>
@@ -93,10 +111,39 @@ function renderHistory(sessions) {
   });
 }
 
+function renderReport(report, reportName) {
+  if (!report) {
+    reportMetaNode.textContent = "还没有回归报告。运行 scripts/run_prompt_copilot_regression.py 后这里会出现摘要。";
+    reportSummaryNode.innerHTML = "";
+    return;
+  }
+
+  const summary = report.summary || {};
+  reportMetaNode.textContent = `最新报告：${reportName || "unknown"} · 样本数 ${summary.case_count || 0}`;
+  renderCards(reportSummaryNode, [
+    { label: "平均胜出分", value: summary.avg_winner_total ?? "-" },
+    { label: "平均原始基线", value: summary.avg_original_baseline_total ?? "-" },
+    { label: "平均直改基线", value: summary.avg_direct_baseline_total ?? "-" },
+    { label: "双基线全胜比", value: summary.both_baselines_beaten_ratio ?? "-" },
+  ]);
+}
+
 async function refreshHistory() {
   const response = await fetch(`/api/prompt-copilot/history?user_id=${defaultUserId}`);
   const payload = await response.json();
   renderHistory(payload.data.sessions || []);
+}
+
+async function refreshRuntimeConfig() {
+  const response = await fetch("/api/prompt-copilot/config");
+  const payload = await response.json();
+  renderRuntimeConfig(payload.data || {});
+}
+
+async function refreshReport() {
+  const response = await fetch("/api/prompt-copilot/report/latest");
+  const payload = await response.json();
+  renderReport(payload.data.report, payload.data.report_name);
 }
 
 document.getElementById("optimizeButton").addEventListener("click", async () => {
@@ -125,6 +172,7 @@ document.getElementById("optimizeButton").addEventListener("click", async () => 
   renderResult(payload.data);
   setNotice("优化完成，已挑出胜出版本。");
   await refreshHistory();
+  await refreshRuntimeConfig();
 });
 
 document.getElementById("copyButton").addEventListener("click", async () => {
@@ -160,6 +208,7 @@ document.getElementById("dislikeButton").addEventListener("click", async () => {
 });
 
 document.getElementById("refreshHistoryButton").addEventListener("click", refreshHistory);
+document.getElementById("refreshReportButton").addEventListener("click", refreshReport);
 
 document.getElementById("exampleButton").addEventListener("click", () => {
   sourcePromptInput.value = "帮我把这句开场写得更引人注目，但不要太像广告。";
@@ -169,6 +218,6 @@ document.getElementById("exampleButton").addEventListener("click", () => {
   mustKeepTermsInput.value = "引人注目, 第一眼";
 });
 
-refreshHistory().catch(() => {
-  setNotice("历史记录暂时加载失败。");
+Promise.all([refreshHistory(), refreshRuntimeConfig(), refreshReport()]).catch(() => {
+  setNotice("初始化数据加载失败，请稍后刷新。");
 });

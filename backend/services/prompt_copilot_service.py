@@ -73,6 +73,16 @@ class PromptCopilotService:
             self.asset_root / "rubric" / "scoring-dimensions.json",
             {"dimensions": [], "scenario_weights": {}},
         )
+        self.template_bank = self._load_asset(
+            self.asset_root / "prompt-templates" / "default.json",
+            {
+                "version": "fallback",
+                "analyze_system_prompt": "",
+                "generate_system_prompt": "",
+                "simulate_system_prompt": "",
+                "judge_system_prompt": "",
+            },
+        )
 
     def analyze_and_optimize(
         self,
@@ -166,9 +176,19 @@ class PromptCopilotService:
             "confidence_band": confidence_band,
             "save_enabled": bool(save_session),
             "selected_label": winner.label,
+            "template_version": self.template_bank.get("version", "unknown"),
             "score_summary": history_item["score_summary"],
             "analysis": analysis,
             "history_item": history_item,
+        }
+
+    def get_runtime_config(self) -> dict[str, Any]:
+        return {
+            "template_version": self.template_bank.get("version", "unknown"),
+            "llm_provider": self.llm.provider,
+            "llm_model": self.llm.model,
+            "llm_mode": "stub" if self.llm.stub_mode else "live",
+            "dataset_case_count": len(self.eval_dataset.get("cases", [])),
         }
 
     def list_history(self, user_id: str) -> list[dict[str, Any]]:
@@ -285,10 +305,13 @@ class PromptCopilotService:
             must_keep_terms=must_keep_terms,
             scenario=scenario,
         )
-        system_prompt = (
-            "你是中文提示词分析助手。"
-            "请只输出 JSON 对象，不要加解释。"
-            "字段包括 core_intent、tone、strengths、risks、cultural_signals、summary。"
+        system_prompt = self._template(
+            "analyze_system_prompt",
+            (
+                "你是中文提示词分析助手。"
+                "请只输出 JSON 对象，不要加解释。"
+                "字段包括 core_intent、tone、strengths、risks、cultural_signals、summary。"
+            ),
         )
         user_prompt = json.dumps(
             {
@@ -366,10 +389,13 @@ class PromptCopilotService:
         analysis: dict[str, Any],
     ) -> dict[str, str]:
         fallback = self._heuristic_candidates(source_prompt, task_goal, style_hint, keep_terms)
-        system_prompt = (
-            "你是中文提示词优化器。"
-            "请只输出 JSON 对象，包含 direct_rewrite、clearer、literary、vivid、executable、conservative 六个字段。"
-            "每个字段是一条可直接给大模型使用的中文提示词。"
+        system_prompt = self._template(
+            "generate_system_prompt",
+            (
+                "你是中文提示词优化器。"
+                "请只输出 JSON 对象，包含 direct_rewrite、clearer、literary、vivid、executable、conservative 六个字段。"
+                "每个字段是一条可直接给大模型使用的中文提示词。"
+            ),
         )
         user_prompt = json.dumps(
             {
@@ -605,7 +631,10 @@ class PromptCopilotService:
 
     def _simulate_output(self, candidate_prompt: str, task_goal: str) -> str:
         fallback = self._heuristic_generated_output(task_goal)
-        system_prompt = "你是一名中文内容创作者。请根据给定提示词直接产出结果，只输出成稿。"
+        system_prompt = self._template(
+            "simulate_system_prompt",
+            "你是一名中文内容创作者。请根据给定提示词直接产出结果，只输出成稿。",
+        )
         user_prompt = json.dumps(
             {"task_goal": task_goal, "prompt": candidate_prompt},
             ensure_ascii=False,
@@ -636,10 +665,13 @@ class PromptCopilotService:
             keep_terms=keep_terms,
         )
         fallback_summary = "基于固定维度完成输出评估，重点检查完成度、自然度和是否因文采增加歧义。"
-        system_prompt = (
-            "你是中文创作评测器。"
-            "请只输出 JSON 对象，字段为 task_completion、clarity、naturalness、literary_gain、imagery、ambiguity_control、executability、summary。"
-            "分数范围 1 到 10。"
+        system_prompt = self._template(
+            "judge_system_prompt",
+            (
+                "你是中文创作评测器。"
+                "请只输出 JSON 对象，字段为 task_completion、clarity、naturalness、literary_gain、imagery、ambiguity_control、executability、summary。"
+                "分数范围 1 到 10。"
+            ),
         )
         user_prompt = json.dumps(
             {
@@ -775,6 +807,7 @@ class PromptCopilotService:
             "style_hint": ensure_text(style_hint),
             "must_keep_terms": keep_terms,
             "selected_label": best_candidate.label,
+            "template_version": self.template_bank.get("version", "unknown"),
             "score_summary": {
                 "winner_total": round(best_candidate.total, 3),
                 "original_baseline_total": round(original_baseline.total, 3),
@@ -810,6 +843,10 @@ class PromptCopilotService:
         except json.JSONDecodeError:
             return None
         return parsed if isinstance(parsed, dict) else None
+
+    def _template(self, key: str, fallback: str) -> str:
+        value = ensure_text(str(self.template_bank.get(key, "")))
+        return value or fallback
 
 
 prompt_copilot_service = PromptCopilotService()

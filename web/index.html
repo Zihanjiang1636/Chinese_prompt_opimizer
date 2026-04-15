@@ -12,8 +12,10 @@
         <p class="eyebrow">Chinese Prompt Optimizer</p>
         <h1>先理解中文提示词，再把更稳的版本交给你。</h1>
         <p class="hero-copy">
-          面向中文文案与脚本场景的提示词优化器。它会先解析原句，再做多路改写和内部回放筛选，最后只展示跑赢基线的那版。
+          这个工具不只是润色一句话，而是先做中文语义拆解，再进行多路改写、基线比较和内部回放筛选，
+          最后只保留真正跑赢原句和单轮直改的那一版。
         </p>
+        <div id="runtimeConfig" class="runtime-strip"></div>
       </section>
 
       <section class="workspace">
@@ -46,7 +48,7 @@
             <span>保存本次结果到本地历史</span>
           </label>
           <div class="button-row">
-            <button id="optimizeButton" class="primary">开始优化</button>
+            <button id="optimizeButton" class="primary" type="button">开始优化</button>
             <button id="exampleButton" class="secondary" type="button">填入示例</button>
           </div>
           <p id="notice" class="notice"></p>
@@ -74,18 +76,32 @@
         </article>
       </section>
 
-      <section class="panel history-panel">
-        <div class="history-head">
-          <div>
-            <p class="badge">历史记录</p>
-            <h2>把好用的中文 Prompt 沉淀下来</h2>
+      <section class="dashboard-grid">
+        <section class="panel">
+          <div class="history-head">
+            <div>
+              <p class="badge">历史记录</p>
+              <h2>把好用的中文 Prompt 沉淀下来</h2>
+            </div>
+            <button id="refreshHistoryButton" class="ghost" type="button">刷新</button>
           </div>
-          <button id="refreshHistoryButton" class="ghost" type="button">刷新</button>
-        </div>
-        <div id="historyList" class="history-list"></div>
+          <div id="historyList" class="history-list"></div>
+        </section>
+
+        <section class="panel">
+          <div class="history-head">
+            <div>
+              <p class="badge">回归概览</p>
+              <h2>像开源评测工具那样看整体趋势</h2>
+            </div>
+            <button id="refreshReportButton" class="ghost" type="button">刷新</button>
+          </div>
+          <p id="reportMeta" class="subtle-copy">如果还没跑回归，这里会显示为空。</p>
+          <div id="reportSummary" class="score-grid"></div>
+        </section>
       </section>
     </main>
 
     <script src="/assets/app.js"></script>
   </body>
-  </html>
+</html>

@@ -84,6 +84,11 @@ body {
   gap: 24px;
 }
 
+.dashboard-grid {
+  display: grid;
+  gap: 24px;
+}
+
 .panel {
   padding: 24px;
 }
@@ -206,6 +211,12 @@ button:hover {
   margin-top: 18px;
 }
 
+.runtime-strip {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+}
+
 .score-card,
 .explanation-item,
 .history-item {
@@ -229,6 +240,10 @@ button:hover {
 
 .history-item {
   cursor: pointer;
+  width: 100%;
+  text-align: left;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.78);
 }
 
 .history-item small {
@@ -246,16 +261,26 @@ button:hover {
   font-weight: 700;
 }
 
+.subtle-copy {
+  color: var(--muted);
+  line-height: 1.7;
+}
+
 @media (min-width: 960px) {
   .workspace {
     grid-template-columns: 0.9fr 1.1fr;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .field-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .score-grid {
+  .score-grid,
+  .runtime-strip {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }

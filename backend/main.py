@@ -69,6 +69,31 @@ async def health() -> dict[str, Any]:
     }
 
 
+@app.get("/api/prompt-copilot/config", response_model=ApiEnvelope)
+async def runtime_config() -> ApiEnvelope:
+    return ApiEnvelope(status="success", data=prompt_copilot_service.get_runtime_config())
+
+
+@app.get("/api/prompt-copilot/report/latest", response_model=ApiEnvelope)
+async def latest_report() -> ApiEnvelope:
+    reports_dir = Path(__file__).resolve().parent.parent / "prompt-copilot" / "reports"
+    report_files = sorted(reports_dir.glob("*.json"), key=lambda item: item.stat().st_mtime, reverse=True)
+    if not report_files:
+        return ApiEnvelope(status="success", data={"report": None})
+
+    import json
+
+    with report_files[0].open("r", encoding="utf-8") as handle:
+        payload = json.load(handle)
+    return ApiEnvelope(
+        status="success",
+        data={
+            "report": payload,
+            "report_name": report_files[0].name,
+        },
+    )
+
+
 @app.get("/", include_in_schema=False)
 async def index() -> FileResponse:
     return FileResponse(WEB_DIR / "index.html")

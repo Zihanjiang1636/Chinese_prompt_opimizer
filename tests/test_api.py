@@ -19,6 +19,14 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(payload["status"], "healthy")
         self.assertIn(payload["llm_mode"], {"stub", "live"})
 
+    def test_runtime_config_endpoint(self) -> None:
+        response = client.get("/api/prompt-copilot/config")
+
+        self.assertEqual(response.status_code, 200)
+        payload = response.json()["data"]
+        self.assertIn("template_version", payload)
+        self.assertIn("llm_mode", payload)
+
     def test_optimize_history_feedback_flow(self) -> None:
         optimize = client.post(
             "/api/prompt-copilot/optimize",
@@ -52,6 +60,12 @@ class ApiTests(unittest.TestCase):
         )
         self.assertEqual(feedback.status_code, 200)
         self.assertTrue(feedback.json()["data"]["session"]["feedback"]["copied"])
+
+    def test_latest_report_endpoint(self) -> None:
+        response = client.get("/api/prompt-copilot/report/latest")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("report", response.json()["data"])
 
 
 if __name__ == "__main__":
