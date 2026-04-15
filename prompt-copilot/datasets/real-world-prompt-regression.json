@@ -1,0 +1,168 @@
+{
+  "version": "v1",
+  "description": "Real-world Chinese prompt regression pack for Prompt Copilot.",
+  "cases": [
+    {
+      "id": "hook-001",
+      "scenario": "hook",
+      "source_prompt": "帮我把这句开场写得更引人注目。",
+      "task_goal": "短视频开场前三秒更抓人",
+      "platform_tag": "短视频",
+      "style_hint": "有文采但别虚",
+      "must_keep_terms": ["引人注目"]
+    },
+    {
+      "id": "hook-002",
+      "scenario": "hook",
+      "source_prompt": "写个让人想继续看下去的开头。",
+      "task_goal": "知识类短视频前3秒留住用户",
+      "platform_tag": "短视频",
+      "style_hint": "克制、有记忆点",
+      "must_keep_terms": ["继续看下去"]
+    },
+    {
+      "id": "hook-003",
+      "scenario": "hook",
+      "source_prompt": "把这个开头写得炸一点。",
+      "task_goal": "情绪类短视频开场更有第一眼抓力",
+      "platform_tag": "短视频",
+      "style_hint": "热烈但不要廉价",
+      "must_keep_terms": []
+    },
+    {
+      "id": "seeding-001",
+      "scenario": "seeding",
+      "source_prompt": "帮我把这段种草文案写得更让人心动。",
+      "task_goal": "护肤品种草文案更真实、更有代入感",
+      "platform_tag": "小红书",
+      "style_hint": "像真人分享，不要硬广",
+      "must_keep_terms": ["心动"]
+    },
+    {
+      "id": "seeding-002",
+      "scenario": "seeding",
+      "source_prompt": "让这段推荐更自然一点。",
+      "task_goal": "生活方式种草文案像朋友安利",
+      "platform_tag": "小红书",
+      "style_hint": "松弛、真诚",
+      "must_keep_terms": []
+    },
+    {
+      "id": "seeding-003",
+      "scenario": "seeding",
+      "source_prompt": "写得有质感一点，但不要悬浮。",
+      "task_goal": "家居类种草文案更有生活氛围",
+      "platform_tag": "小红书",
+      "style_hint": "有画面感，不做空话",
+      "must_keep_terms": ["质感"]
+    },
+    {
+      "id": "ad-001",
+      "scenario": "ad_copy",
+      "source_prompt": "帮我把这段广告口播写得更顺一些。",
+      "task_goal": "广告口播更有节奏且信息更完整",
+      "platform_tag": "口播视频",
+      "style_hint": "传播感强，但别油",
+      "must_keep_terms": ["口播"]
+    },
+    {
+      "id": "ad-002",
+      "scenario": "ad_copy",
+      "source_prompt": "让这段投放文案更高级。",
+      "task_goal": "品牌广告文案更有品牌感和传播力",
+      "platform_tag": "广告投放",
+      "style_hint": "克制、高级、不抽象",
+      "must_keep_terms": []
+    },
+    {
+      "id": "ad-003",
+      "scenario": "ad_copy",
+      "source_prompt": "改得更像品牌在说话。",
+      "task_goal": "品牌口播更统一、更可信",
+      "platform_tag": "品牌视频",
+      "style_hint": "有辨识度但不自嗨",
+      "must_keep_terms": ["品牌"]
+    },
+    {
+      "id": "headline-001",
+      "scenario": "headline",
+      "source_prompt": "帮我把这个标题写得更吸引人。",
+      "task_goal": "内容标题更抓人但不能标题党",
+      "platform_tag": "内容标题",
+      "style_hint": "抓眼但不夸张",
+      "must_keep_terms": ["吸引人"]
+    },
+    {
+      "id": "headline-002",
+      "scenario": "headline",
+      "source_prompt": "写得更有冲击力一点。",
+      "task_goal": "科技产品标题更强记忆点",
+      "platform_tag": "科技内容",
+      "style_hint": "简洁、利落、有冲击",
+      "must_keep_terms": []
+    },
+    {
+      "id": "headline-003",
+      "scenario": "headline",
+      "source_prompt": "想要一句会让人停下来的标题。",
+      "task_goal": "情绪内容标题提高点击意愿",
+      "platform_tag": "图文标题",
+      "style_hint": "留白一点，别故作深沉",
+      "must_keep_terms": ["停下来"]
+    },
+    {
+      "id": "value-001",
+      "scenario": "value_prop",
+      "source_prompt": "帮我把这个卖点说得更具体。",
+      "task_goal": "产品卖点提炼更清楚、更可感知",
+      "platform_tag": "产品介绍",
+      "style_hint": "具体、不空泛",
+      "must_keep_terms": ["卖点"]
+    },
+    {
+      "id": "value-002",
+      "scenario": "value_prop",
+      "source_prompt": "写出一种别人一看就能懂的优势。",
+      "task_goal": "服务型产品优势表达更直给",
+      "platform_tag": "产品介绍",
+      "style_hint": "口语化、易懂",
+      "must_keep_terms": ["优势"]
+    },
+    {
+      "id": "value-003",
+      "scenario": "value_prop",
+      "source_prompt": "把我们的亮点讲得让人记住。",
+      "task_goal": "品牌核心价值更容易被记住",
+      "platform_tag": "品牌文案",
+      "style_hint": "有节奏，但别过满",
+      "must_keep_terms": ["亮点"]
+    },
+    {
+      "id": "emotion-001",
+      "scenario": "emotion",
+      "source_prompt": "帮我把这句话写得更有共鸣。",
+      "task_goal": "情绪文案更容易击中用户共鸣",
+      "platform_tag": "情绪内容",
+      "style_hint": "温柔、克制、有余味",
+      "must_keep_terms": ["共鸣"]
+    },
+    {
+      "id": "emotion-002",
+      "scenario": "emotion",
+      "source_prompt": "想让它更有画面感一点。",
+      "task_goal": "情绪文案更有生活场景和代入感",
+      "platform_tag": "图文内容",
+      "style_hint": "有生活细节，不要堆形容词",
+      "must_keep_terms": ["画面感"]
+    },
+    {
+      "id": "emotion-003",
+      "scenario": "emotion",
+      "source_prompt": "让这段话更有那种说不出的意味。",
+      "task_goal": "氛围感文案增强留白和余味",
+      "platform_tag": "氛围内容",
+      "style_hint": "有余味，但不要故作玄虚",
+      "must_keep_terms": []
+    }
+  ]
+}

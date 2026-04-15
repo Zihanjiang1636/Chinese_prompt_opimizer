@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Chinese Prompt Optimizer</title>
+    <link rel="stylesheet" href="/assets/styles.css" />
+  </head>
+  <body>
+    <main class="page-shell">
+      <section class="hero">
+        <p class="eyebrow">Chinese Prompt Optimizer</p>
+        <h1>先理解中文提示词，再把更稳的版本交给你。</h1>
+        <p class="hero-copy">
+          面向中文文案与脚本场景的提示词优化器。它会先解析原句，再做多路改写和内部回放筛选，最后只展示跑赢基线的那版。
+        </p>
+      </section>
+
+      <section class="workspace">
+        <article class="panel form-panel">
+          <h2>输入区</h2>
+          <label>
+            <span>原提示词</span>
+            <textarea id="sourcePrompt">帮我把这句开场写得更引人注目，但不要太像广告。</textarea>
+          </label>
+          <label>
+            <span>目标任务</span>
+            <input id="taskGoal" value="短视频开场前三秒更抓人" />
+          </label>
+          <div class="field-grid">
+            <label>
+              <span>平台/场景</span>
+              <input id="platformTag" value="短视频" />
+            </label>
+            <label>
+              <span>风格偏好</span>
+              <input id="styleHint" value="有文采但别虚" />
+            </label>
+          </div>
+          <label>
+            <span>保留关键词</span>
+            <input id="mustKeepTerms" value="引人注目, 第一眼" />
+          </label>
+          <label class="checkbox-row">
+            <input id="saveSession" type="checkbox" checked />
+            <span>保存本次结果到本地历史</span>
+          </label>
+          <div class="button-row">
+            <button id="optimizeButton" class="primary">开始优化</button>
+            <button id="exampleButton" class="secondary" type="button">填入示例</button>
+          </div>
+          <p id="notice" class="notice"></p>
+        </article>
+
+        <article class="panel result-panel">
+          <div class="result-head">
+            <div>
+              <p class="badge">胜出版本</p>
+              <h2>最优提示词</h2>
+            </div>
+            <button id="copyButton" class="secondary" type="button">复制</button>
+          </div>
+          <pre id="bestPrompt" class="best-prompt">先点击“开始优化”，系统会把胜出的版本展示在这里。</pre>
+          <div id="scoreSummary" class="score-grid"></div>
+          <div id="briefExplanation" class="explanation-list"></div>
+          <details class="details-panel">
+            <summary>查看解析摘要</summary>
+            <div id="analysisSummary" class="analysis-box"></div>
+          </details>
+          <div class="feedback-row">
+            <button id="likeButton" class="secondary" type="button">更像我要的</button>
+            <button id="dislikeButton" class="ghost" type="button">还不够像</button>
+          </div>
+        </article>
+      </section>
+
+      <section class="panel history-panel">
+        <div class="history-head">
+          <div>
+            <p class="badge">历史记录</p>
+            <h2>把好用的中文 Prompt 沉淀下来</h2>
+          </div>
+          <button id="refreshHistoryButton" class="ghost" type="button">刷新</button>
+        </div>
+        <div id="historyList" class="history-list"></div>
+      </section>
+    </main>
+
+    <script src="/assets/app.js"></script>
+  </body>
+  </html>

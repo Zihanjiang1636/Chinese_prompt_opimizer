@@ -1,0 +1,46 @@
+{
+  "cases": [
+    {
+      "id": "hook-short-video",
+      "scenario": "hook",
+      "task_goal": "短视频开场前三秒吸引注意",
+      "preferred_dimensions": ["clarity", "imagery", "executability"],
+      "anti_patterns": ["空泛口号", "没有第一眼抓力"]
+    },
+    {
+      "id": "seeding-copy",
+      "scenario": "seeding",
+      "task_goal": "种草文案增强真实感和想象空间",
+      "preferred_dimensions": ["naturalness", "imagery", "literary_gain"],
+      "anti_patterns": ["过度营销", "像硬广"]
+    },
+    {
+      "id": "ad-voiceover",
+      "scenario": "ad_copy",
+      "task_goal": "广告口播兼顾传播性和信息密度",
+      "preferred_dimensions": ["task_completion", "clarity", "executability"],
+      "anti_patterns": ["只有修辞没有信息", "节奏拖沓"]
+    },
+    {
+      "id": "headline-boost",
+      "scenario": "headline",
+      "task_goal": "标题优化兼顾抓人和不失真",
+      "preferred_dimensions": ["clarity", "imagery", "ambiguity_control"],
+      "anti_patterns": ["标题党", "信息失真"]
+    },
+    {
+      "id": "value-prop",
+      "scenario": "value_prop",
+      "task_goal": "卖点提炼更具体、更能被记住",
+      "preferred_dimensions": ["task_completion", "clarity", "naturalness"],
+      "anti_patterns": ["抽象价值词堆砌", "卖点不落地"]
+    },
+    {
+      "id": "emotion-lift",
+      "scenario": "emotion",
+      "task_goal": "情绪化表达增强共鸣但不过度煽情",
+      "preferred_dimensions": ["literary_gain", "imagery", "ambiguity_control"],
+      "anti_patterns": ["廉价煽情", "情绪过满"]
+    }
+  ]
+}

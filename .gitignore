@@ -1,0 +1,7 @@
+.env
+.pytest_cache/
+__pycache__/
+*.pyc
+data/users/
+prompt-copilot/reports/*.json
+!prompt-copilot/reports/.gitkeep

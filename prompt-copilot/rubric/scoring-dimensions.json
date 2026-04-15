@@ -1,0 +1,76 @@
+{
+  "dimensions": [
+    "task_completion",
+    "clarity",
+    "naturalness",
+    "literary_gain",
+    "imagery",
+    "ambiguity_control",
+    "executability"
+  ],
+  "scenario_weights": {
+    "hook": {
+      "task_completion": 1.2,
+      "clarity": 1.15,
+      "naturalness": 0.9,
+      "literary_gain": 0.95,
+      "imagery": 1.2,
+      "ambiguity_control": 1.05,
+      "executability": 1.1
+    },
+    "seeding": {
+      "task_completion": 1.1,
+      "clarity": 1.0,
+      "naturalness": 1.15,
+      "literary_gain": 1.15,
+      "imagery": 1.15,
+      "ambiguity_control": 1.0,
+      "executability": 0.95
+    },
+    "ad_copy": {
+      "task_completion": 1.25,
+      "clarity": 1.2,
+      "naturalness": 1.0,
+      "literary_gain": 0.9,
+      "imagery": 0.95,
+      "ambiguity_control": 1.1,
+      "executability": 1.15
+    },
+    "headline": {
+      "task_completion": 1.15,
+      "clarity": 1.2,
+      "naturalness": 0.95,
+      "literary_gain": 1.0,
+      "imagery": 1.15,
+      "ambiguity_control": 1.2,
+      "executability": 0.9
+    },
+    "value_prop": {
+      "task_completion": 1.25,
+      "clarity": 1.2,
+      "naturalness": 1.05,
+      "literary_gain": 0.85,
+      "imagery": 0.9,
+      "ambiguity_control": 1.15,
+      "executability": 1.1
+    },
+    "emotion": {
+      "task_completion": 1.0,
+      "clarity": 0.95,
+      "naturalness": 1.05,
+      "literary_gain": 1.2,
+      "imagery": 1.2,
+      "ambiguity_control": 1.2,
+      "executability": 0.85
+    },
+    "general_copy": {
+      "task_completion": 1.2,
+      "clarity": 1.15,
+      "naturalness": 1.05,
+      "literary_gain": 1.0,
+      "imagery": 1.0,
+      "ambiguity_control": 1.1,
+      "executability": 1.05
+    }
+  }
+}
