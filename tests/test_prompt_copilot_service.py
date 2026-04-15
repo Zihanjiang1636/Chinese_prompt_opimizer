@@ -79,6 +79,7 @@ class PromptCopilotServiceTests(unittest.TestCase):
             copied=True,
             adopted=True,
             closer_to_goal=True,
+            edited_prompt="这一版我又手动改了一点，但整体保留了你的结构。",
             note="这一版更像我要的。",
             metadata={"source": "unit-test"},
         )
@@ -88,7 +89,9 @@ class PromptCopilotServiceTests(unittest.TestCase):
         self.assertTrue(saved["copied"])
         self.assertTrue(saved["adopted"])
         self.assertTrue(saved["closer_to_goal"])
+        self.assertTrue(saved["edited_prompt"])
         self.assertEqual(saved["note"], "这一版更像我要的。")
+        self.assertIn("signal_score", feedback["session"]["feedback_summary"])
 
 
 if __name__ == "__main__":

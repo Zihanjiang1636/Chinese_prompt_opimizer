@@ -40,6 +40,7 @@ class FeedbackRequest(BaseModel):
     copied: bool | None = None
     adopted: bool | None = None
     closer_to_goal: bool | None = None
+    edited_prompt: str | None = None
     note: str | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
 
@@ -130,6 +131,7 @@ async def feedback(session_id: str = Query(...), payload: FeedbackRequest | None
         copied=request.copied,
         adopted=request.adopted,
         closer_to_goal=request.closer_to_goal,
+        edited_prompt=request.edited_prompt,
         note=request.note,
         metadata=request.metadata,
     )

@@ -24,6 +24,7 @@
 - FastAPI 接口：`/api/prompt-copilot/*`
 - 轻量 Web 界面：输入原提示词和目标任务即可使用
 - 历史记录、反馈闭环、回归摘要
+- 真实使用信号：复制、采纳、二次编辑都会沉淀成用户信号分
 - 策略切换：`平衡 / 文采优先 / 转化优先`
 - 模型接入预设：`OpenAI / OpenAI-compatible / Ollama / LM Studio / DashScope / DeepSeek`
 

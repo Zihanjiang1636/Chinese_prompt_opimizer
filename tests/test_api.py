@@ -60,10 +60,17 @@ class ApiTests(unittest.TestCase):
         feedback = client.post(
             "/api/prompt-copilot/feedback",
             params={"session_id": session_id},
-            json={"user_id": "api-user", "copied": True, "closer_to_goal": True},
+            json={
+                "user_id": "api-user",
+                "copied": True,
+                "closer_to_goal": True,
+                "adopted": True,
+                "edited_prompt": "这是我最后真的会发出去的版本。",
+            },
         )
         self.assertEqual(feedback.status_code, 200)
         self.assertTrue(feedback.json()["data"]["session"]["feedback"]["copied"])
+        self.assertIn("signal_score", feedback.json()["data"]["session"]["feedback_summary"])
 
     def test_latest_report_endpoint(self) -> None:
         response = client.get("/api/prompt-copilot/report/latest")

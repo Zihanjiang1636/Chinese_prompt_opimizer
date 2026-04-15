@@ -12,8 +12,10 @@ const strategySelect = document.getElementById("strategySelect");
 const noticeNode = document.getElementById("notice");
 const bestPromptNode = document.getElementById("bestPrompt");
 const scoreSummaryNode = document.getElementById("scoreSummary");
+const humanSignalSummaryNode = document.getElementById("humanSignalSummary");
 const briefExplanationNode = document.getElementById("briefExplanation");
 const analysisSummaryNode = document.getElementById("analysisSummary");
+const finalPromptInput = document.getElementById("finalPromptInput");
 const historyListNode = document.getElementById("historyList");
 const runtimeConfigNode = document.getElementById("runtimeConfig");
 const reportMetaNode = document.getElementById("reportMeta");
@@ -78,11 +80,19 @@ function renderRuntimeConfig(config) {
 function renderResult(result) {
   bestPromptNode.textContent = result.best_prompt || "暂无结果";
   const summary = result.score_summary || {};
+  const feedback = result.feedback || result.history_item?.feedback || {};
+  const feedbackSummary = result.feedback_summary || result.history_item?.feedback_summary || {};
   renderCards(scoreSummaryNode, [
     { label: "胜出总分", value: summary.winner_total ?? "-" },
     { label: "原始基线", value: summary.original_baseline_total ?? "-" },
     { label: "直改基线", value: summary.direct_baseline_total ?? "-" },
     { label: "策略", value: result.strategy_label || result.strategy || "-" },
+  ]);
+  renderCards(humanSignalSummaryNode, [
+    { label: "用户信号分", value: feedbackSummary.signal_score ?? "-" },
+    { label: "采纳状态", value: feedbackSummary.adoption_state ?? "unrated" },
+    { label: "编辑相似度", value: feedbackSummary.edit_similarity ?? "-" },
+    { label: "是否二改", value: feedbackSummary.has_edited_prompt ? "是" : "否" },
   ]);
 
   briefExplanationNode.innerHTML = (result.brief_explanation || [])
@@ -104,6 +114,7 @@ function renderResult(result) {
     <h3>中文语感线索</h3>
     <ul>${culturalSignals || "<li>暂无</li>"}</ul>
   `;
+  finalPromptInput.value = feedback.edited_prompt || result.best_prompt || "";
 }
 
 function renderHistory(sessions) {
@@ -118,7 +129,7 @@ function renderHistory(sessions) {
         <button class="history-item" data-session-id="${item.session_id}">
           <strong>${item.task_goal}</strong>
           <div>${item.source_prompt}</div>
-          <small>${item.strategy_label || item.strategy} · ${item.confidence_band} · 胜出分 ${item.score_summary?.winner_total ?? "-"}</small>
+          <small>${item.strategy_label || item.strategy} · ${item.confidence_band} · 胜出分 ${item.score_summary?.winner_total ?? "-"} · 用户信号 ${item.feedback_summary?.signal_score ?? "-"}</small>
         </button>
       `,
     )
@@ -174,6 +185,13 @@ async function refreshReport() {
   renderReport(payload.data.report, payload.data.report_name);
 }
 
+async function refreshActiveSession() {
+  if (!activeSessionId) return;
+  const response = await fetch(`/api/prompt-copilot/history/${activeSessionId}?user_id=${defaultUserId}`);
+  const payload = await response.json();
+  renderResult(payload.data.session);
+}
+
 document.getElementById("optimizeButton").addEventListener("click", async () => {
   setNotice("正在解析、改写并进行内部筛选…");
   const response = await fetch("/api/prompt-copilot/optimize", {
@@ -213,6 +231,8 @@ document.getElementById("copyButton").addEventListener("click", async () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ user_id: defaultUserId, copied: true }),
     });
+    await refreshHistory();
+    await refreshActiveSession();
   }
 });
 
@@ -224,6 +244,8 @@ document.getElementById("likeButton").addEventListener("click", async () => {
     body: JSON.stringify({ user_id: defaultUserId, adopted: true, closer_to_goal: true }),
   });
   setNotice("已记录为“更像我要的”。");
+  await refreshHistory();
+  await refreshActiveSession();
 });
 
 document.getElementById("dislikeButton").addEventListener("click", async () => {
@@ -234,6 +256,26 @@ document.getElementById("dislikeButton").addEventListener("click", async () => {
     body: JSON.stringify({ user_id: defaultUserId, closer_to_goal: false }),
   });
   setNotice("已记录为“还不够像”。");
+  await refreshHistory();
+  await refreshActiveSession();
+});
+
+document.getElementById("saveFinalButton").addEventListener("click", async () => {
+  if (!activeSessionId) return;
+  await fetch(`/api/prompt-copilot/feedback?session_id=${activeSessionId}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      user_id: defaultUserId,
+      adopted: true,
+      closer_to_goal: true,
+      edited_prompt: finalPromptInput.value,
+      metadata: { source: "final-prompt-box" },
+    }),
+  });
+  setNotice("已记录你的最终采用版本。");
+  await refreshHistory();
+  await refreshActiveSession();
 });
 
 document.getElementById("refreshHistoryButton").addEventListener("click", refreshHistory);
@@ -246,6 +288,7 @@ document.getElementById("exampleButton").addEventListener("click", () => {
   styleHintInput.value = "有文采但别虚";
   mustKeepTermsInput.value = "引人注目, 第一眼";
   strategySelect.value = runtimeConfig?.default_strategy ?? "balanced";
+  finalPromptInput.value = "";
 });
 
 Promise.all([refreshHistory(), refreshRuntimeConfig(), refreshReport()]).catch(() => {

@@ -69,6 +69,7 @@
           </div>
           <pre id="bestPrompt" class="best-prompt">点击“开始优化”后，系统会把胜出的版本展示在这里。</pre>
           <div id="scoreSummary" class="score-grid"></div>
+          <div id="humanSignalSummary" class="score-grid"></div>
           <div id="briefExplanation" class="explanation-list"></div>
           <details class="details-panel">
             <summary>查看解析摘要</summary>
@@ -77,6 +78,13 @@
           <div class="feedback-row">
             <button id="likeButton" class="secondary" type="button">更像我要的</button>
             <button id="dislikeButton" class="ghost" type="button">还不够像</button>
+          </div>
+          <label>
+            <span>如果你做了二次修改，可以把最终采用版本记下来</span>
+            <textarea id="finalPromptInput" class="final-prompt-box" placeholder="例如：你最终发布出去的版本，或你手动改过后的版本"></textarea>
+          </label>
+          <div class="button-row compact-row">
+            <button id="saveFinalButton" class="secondary" type="button">记录最终采用版本</button>
           </div>
         </article>
       </section>

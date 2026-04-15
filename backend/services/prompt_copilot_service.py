@@ -6,6 +6,7 @@ import json
 import re
 from copy import deepcopy
 from dataclasses import dataclass
+from difflib import SequenceMatcher
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
@@ -159,12 +160,13 @@ class PromptCopilotService:
             "strategy_label": item.get("strategy_label", STRATEGY_PROFILES["balanced"]["label"]),
             "score_summary": item.get("score_summary", {}),
             "feedback": item.get("feedback", {}),
+            "feedback_summary": item.get("feedback_summary", {}),
         } for item in ordered]
 
     def get_history_item(self, user_id: str, session_id: str) -> dict[str, Any] | None:
         return next((deepcopy(item) for item in self._load_history(user_id).get("sessions", []) if item.get("session_id") == session_id), None)
 
-    def record_feedback(self, *, user_id: str, session_id: str, copied: bool | None, adopted: bool | None, closer_to_goal: bool | None, note: str | None, metadata: dict[str, Any] | None = None) -> dict[str, Any]:
+    def record_feedback(self, *, user_id: str, session_id: str, copied: bool | None, adopted: bool | None, closer_to_goal: bool | None, edited_prompt: str | None, note: str | None, metadata: dict[str, Any] | None = None) -> dict[str, Any]:
         payload = self._load_history(user_id)
         target = next((item for item in payload.get("sessions", []) if item.get("session_id") == session_id), None)
         if target is None:
@@ -176,11 +178,14 @@ class PromptCopilotService:
             feedback["adopted"] = bool(adopted)
         if closer_to_goal is not None:
             feedback["closer_to_goal"] = bool(closer_to_goal)
+        if edited_prompt is not None:
+            feedback["edited_prompt"] = ensure_text(edited_prompt)
         if note is not None:
             feedback["note"] = ensure_text(note)
         if metadata:
             feedback["metadata"] = {**feedback.get("metadata", {}), **metadata}
         feedback["updated_at"] = now_iso()
+        target["feedback_summary"] = self._build_feedback_summary(feedback, target.get("best_prompt", ""))
         target["updated_at"] = feedback["updated_at"]
         self.database.write_user_file(user_id, PROMPT_HISTORY_FILENAME, payload)
         return {"status": "success", "message": "Feedback saved.", "session": deepcopy(target)}
@@ -508,7 +513,8 @@ class PromptCopilotService:
             "strategy": strategy_id,
             "strategy_label": STRATEGY_PROFILES[strategy_id]["label"],
             "score_summary": {"winner_total": round(best_candidate.total, 3), "original_baseline_total": round(original_baseline.total, 3), "direct_baseline_total": round(direct_baseline.total, 3)},
-            "feedback": {"copied": False, "adopted": False, "closer_to_goal": None, "note": "", "metadata": {}, "updated_at": ""},
+            "feedback": {"copied": False, "adopted": False, "closer_to_goal": None, "edited_prompt": "", "note": "", "metadata": {}, "updated_at": ""},
+            "feedback_summary": self._build_feedback_summary({"copied": False, "adopted": False, "closer_to_goal": None, "edited_prompt": "", "note": "", "metadata": {}, "updated_at": ""}, best_candidate.prompt),
             "internal_trace": {
                 "winner": best_candidate.to_dict(),
                 "baselines": {"original": original_baseline.to_dict(), "direct_rewrite": direct_baseline.to_dict()},
@@ -516,8 +522,51 @@ class PromptCopilotService:
             },
         }
 
+    def _build_feedback_summary(self, feedback: dict[str, Any], best_prompt: str) -> dict[str, Any]:
+        edited_prompt = ensure_text(feedback.get("edited_prompt"))
+        similarity = self._text_similarity(best_prompt, edited_prompt) if edited_prompt else 0.0
+        copied = bool(feedback.get("copied"))
+        adopted = bool(feedback.get("adopted"))
+        closer = feedback.get("closer_to_goal")
+
+        score = 0.0
+        if copied:
+            score += 0.2
+        if adopted:
+            score += 0.35
+        if closer is True:
+            score += 0.25
+        elif closer is False:
+            score -= 0.15
+        if edited_prompt:
+            score += 0.1 if similarity >= 0.6 else 0.05
+        if adopted and edited_prompt and similarity >= 0.9:
+            adoption_state = "direct_adopt"
+        elif adopted and edited_prompt:
+            adoption_state = "edited_adopt"
+        elif adopted:
+            adoption_state = "adopted"
+        elif copied:
+            adoption_state = "copied_only"
+        elif closer is False:
+            adoption_state = "not_close"
+        else:
+            adoption_state = "unrated"
+
+        return {
+            "signal_score": round(max(0.0, min(score, 1.0)), 3),
+            "adoption_state": adoption_state,
+            "edit_similarity": round(similarity, 3),
+            "has_edited_prompt": bool(edited_prompt),
+        }
+
     def _keyword_hits(self, text: str, keywords: tuple[str, ...]) -> int:
         return sum(keyword in text for keyword in keywords)
+
+    def _text_similarity(self, left: str, right: str) -> float:
+        if not ensure_text(left) or not ensure_text(right):
+            return 0.0
+        return SequenceMatcher(a=left, b=right).ratio()
 
     def _extract_json_object(self, text: str) -> dict[str, Any] | None:
         cleaned = ensure_text(text)
